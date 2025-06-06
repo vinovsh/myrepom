@@ -1,1 +1,332 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile Search</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .profile-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .card h3 {
+      margin: 10px 0 5px;
+    }
+
+    /* Popup Styles */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    .popup img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 10px;
+      box-shadow: 0 0 20px black;
+    }
+    .popup button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Find a Profile</h1>
+
+  <form id="searchForm">
+    <input type="number" id="fromAge" placeholder="From Age" value="18" required />
+    <input type="number" id="toAge" placeholder="To Age" value="26" required />
+    <select id="star" >
+      <option value="">Select Star</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+
+  <div class="profile-grid" id="profilesContainer"></div>
+
+  <div class="popup" id="imagePopup">
+    <img id="popupImage" src="" alt="Profile" />
+    <button onclick="closePopup()">Close</button>
+  </div>
+
+  <script>
+    const stars = [
+    {
+        "Star_ID": 1,
+        "Star_Name": "Aswini",
+        "Star_Tamil": "அசுவினி"
+    },
+    {
+        "Star_ID": 2,
+        "Star_Name": "Bharani",
+        "Star_Tamil": "பரணி"
+    },
+    {
+        "Star_ID": 3,
+        "Star_Name": "Karthigai",
+        "Star_Tamil": "கிருத்திகை"
+    },
+    {
+        "Star_ID": 4,
+        "Star_Name": "Rohini",
+        "Star_Tamil": "ரோகிணி"
+    },
+    {
+        "Star_ID": 5,
+        "Star_Name": "Mrigasheersham",
+        "Star_Tamil": "மிருகசிரீஷம்"
+    },
+    {
+        "Star_ID": 6,
+        "Star_Name": "Thiruvaathirai",
+        "Star_Tamil": "திருவாதிரை"
+    },
+    {
+        "Star_ID": 7,
+        "Star_Name": "Punarpoosam",
+        "Star_Tamil": "புனர்பூசம்"
+    },
+    {
+        "Star_ID": 8,
+        "Star_Name": "Poosam",
+        "Star_Tamil": "பூசம்"
+    },
+    {
+        "Star_ID": 9,
+        "Star_Name": "Aayilyam",
+        "Star_Tamil": "ஆயில்யம்"
+    },
+    {
+        "Star_ID": 10,
+        "Star_Name": "Makam",
+        "Star_Tamil": "மகம்"
+    },
+    {
+        "Star_ID": 11,
+        "Star_Name": "Pooram",
+        "Star_Tamil": "பூரம்"
+    },
+    {
+        "Star_ID": 12,
+        "Star_Name": "Uthiram",
+        "Star_Tamil": "உத்திரம்"
+    },
+    {
+        "Star_ID": 13,
+        "Star_Name": "Hastham",
+        "Star_Tamil": "ஹஸ்தம்"
+    },
+    {
+        "Star_ID": 14,
+        "Star_Name": "Chithirai",
+        "Star_Tamil": "சித்திரை"
+    },
+    {
+        "Star_ID": 15,
+        "Star_Name": "Swaathi",
+        "Star_Tamil": "சுவாதி"
+    },
+    {
+        "Star_ID": 16,
+        "Star_Name": "Visaakam",
+        "Star_Tamil": "விசாகம்"
+    },
+    {
+        "Star_ID": 17,
+        "Star_Name": "Anusham",
+        "Star_Tamil": "அனுஷம்"
+    },
+    {
+        "Star_ID": 18,
+        "Star_Name": "Kettai",
+        "Star_Tamil": "கேட்டை"
+    },
+    {
+        "Star_ID": 19,
+        "Star_Name": "Moolam",
+        "Star_Tamil": "மூலம்"
+    },
+    {
+        "Star_ID": 20,
+        "Star_Name": "Pooraadam",
+        "Star_Tamil": "பூராடம்"
+    },
+    {
+        "Star_ID": 21,
+        "Star_Name": "Uthiraadam",
+        "Star_Tamil": "உத்திராடம்"
+    },
+    {
+        "Star_ID": 22,
+        "Star_Name": "Thiruvonam",
+        "Star_Tamil": "திருவோணம்"
+    },
+    {
+        "Star_ID": 23,
+        "Star_Name": "Avittam",
+        "Star_Tamil": "அவிட்டம்"
+    },
+    {
+        "Star_ID": 24,
+        "Star_Name": "Chathayam/Sadayam",
+        "Star_Tamil": "சதயம்"
+    },
+    {
+        "Star_ID": 25,
+        "Star_Name": "Poorattathi",
+        "Star_Tamil": "பூரட்டாதி"
+    },
+    {
+        "Star_ID": 26,
+        "Star_Name": "Uthirattathi",
+        "Star_Tamil": "உத்திரட்டாதி"
+    },
+    {
+        "Star_ID": 27,
+        "Star_Name": "Revathi",
+        "Star_Tamil": "ரேவதி"
+    },
+    {
+        "Star_ID": 28,
+        "Star_Name": "Not Available",
+        "Star_Tamil": "இல்லை"
+    }
+]
+
+
+    const starSelect = document.getElementById('star');
+    const container = document.getElementById('profilesContainer');
+
+    stars.forEach(star => {
+      const option = document.createElement('option');
+      option.value = star.Star_ID;
+      option.textContent = `${star.Star_Name} (${star.Star_Tamil})`;
+      starSelect.appendChild(option);
+    });
+
+    document.getElementById('searchForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const from = document.getElementById('fromAge').value;
+      const to = document.getElementById('toAge').value;
+      const star = document.getElementById('star').value;
+
+      const payload = {
+        obj: `{'Gender':'Female', 'From':'${from}', 'To':'${to}', 'Star':'${star}'}`
+      };
+
+      const res = await fetch('https://cors-anywhere.herokuapp.com/https://nadarmatrimony.co.in/Home/FindPartner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      displayProfiles(data);
+    });
+
+function displayProfiles(data) {
+  container.innerHTML = '';
+  data.forEach(profile => {
+    const imageUrl = `https://nadarmatrimony.co.in/${profile.Photo_Path}`;
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${imageUrl}" onclick="openPopup(this.src)" />
+      <button style="margin-top: 8px;" onclick="window.open('${imageUrl}', '_blank')">Preview</button>
+      <h3>${profile.Profile_Name}</h3>
+      <p><strong>Profile Code:</strong> ${profile.Profile_Code}</p>
+      <p><strong>Profile For:</strong> ${profile.Profile_For}</p>
+      <p><strong>Contact Person:</strong> ${profile.Contact_Person}</p>
+      <p><strong>Mobile Number:</strong> ${profile.Mobile_Number}</p>
+      <p><strong>Marital Status:</strong> ${profile.Marital_Status}</p>
+      <p><strong>Age:</strong> ${profile.Age}</p>
+      <p><strong>Caste:</strong> ${profile.caste}</p>
+      <p><strong>Weight:</strong> ${profile.weight}</p>
+      <p><strong>Height:</strong> ${profile.height}</p>
+      <p><strong>Language:</strong> ${profile.language}</p>
+      <p><strong>Company Name:</strong> ${profile.Company_Name}</p>
+      <p><strong>Work Nature:</strong> ${profile.Work_Nature}</p>
+      <p><strong>Work Place:</strong> ${profile.Work_Place}</p>
+      <p><strong>Monthly Income:</strong> ₹${profile.Monthly_Income}</p>
+      <p><strong>Native Place:</strong> ${profile.Native_Place}</p>
+    `;
+    container.appendChild(card);
+  });
+}
+
+
+
+    function openPopup(src) {
+      document.getElementById('popupImage').src = src;
+      document.getElementById('imagePopup').style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('imagePopup').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
